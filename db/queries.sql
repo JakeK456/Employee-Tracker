@@ -14,6 +14,12 @@ JOIN role ON role.department_id = department.id
 JOIN employee ON employee.role_id = role.id
 LEFT JOIN employee e ON e.id = employee.manager_id;
 
+-- Get Managers
+SELECT e.id, CONCAT(e.first_name, ' ', e.last_name) AS manager 
+FROM employee
+INNER JOIN employee e ON e.id = employee.manager_id
+GROUP BY employee.manager_id;
+
 -- Add Department
 INSERT INTO department (name)
 VALUES ("Service");

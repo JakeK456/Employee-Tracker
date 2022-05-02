@@ -28,7 +28,7 @@ const promptMain = () => {
                     },
                     {
                         name: 'Add Employee',
-                        value: addEmployee
+                        value: promptAddEmployee
                     },
                     {
                         name: 'Update Employee Role',
@@ -80,6 +80,54 @@ const viewAllEmployees = () => {
         console.log("addEmployee Function");
     }
 
+const promptAddEmployee = () => {
+    let firstName = null;
+    let lastName = null;
+    let roleArr = null;
+    let roleId = null;
+
+    inquirer.prompt([
+        {
+            type: 'input',
+            message: 'What is the employee\'s first name?',
+            name: 'firstName'
+        },
+        {
+            type: 'input',
+            message: 'What is the employee\'s last name?',
+            name: 'lastName'
+        }
+    ])
+    .then((response) => {
+        firstName = response.firstName;
+        lastName = response.lastName;
+
+        return db.promise().query(
+            `SELECT id AS value, title AS name
+            FROM role`);
+    })
+    .then(([rows,fields]) => {
+        roleArr = rows;
+        return inquirer.prompt([
+            {
+                type: 'list',
+                message: 'What is the employee\'s role?',
+                name: 'role',
+                choices: roleArr
+            }
+        ]);
+    })
+    .then((response) => {
+        roleId = response.role;
+
+        return db.promise().query(
+            `SELECT id AS value, CONCAT(e.first_name, ' ', e.last_name) AS name
+            FROM employee e
+            WHERE e.`);
+    })
+    .catch(err => { console.log(err) });
+};
+
     function updateEmployeeRole() {
         console.log("updateEmployeeRole Function");
     }
@@ -97,7 +145,14 @@ const viewAllRoles = () => {
 }
 
 const addRole = (name, salary, department) => {
-    console.log(`Name ${name}. Salary ${salary}. Dept ${department}`);
+    db.promise().query(
+        `INSERT INTO role (title, salary, department_id)
+        VALUES ("${name}", ${salary}, ${department})`)
+    .then( () => console.log(`Added ${name} to the database`))
+    .catch(err => { console.log(err) })
+    .then( () => {
+        promptMain()
+    });
 }
 
 const promptAddRole = () => {
