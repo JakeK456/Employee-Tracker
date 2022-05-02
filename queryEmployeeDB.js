@@ -1,7 +1,11 @@
+// UNUSED!!!!!!!!!!!!!
+
+
 const mysql = require('mysql2');
+const consoleTable = require('console.table');
 
 class EmployeeDB {
-    constructor(password, dbName){
+    constructor(){
         this.db = mysql.createConnection(
             {
               host: 'localhost',
@@ -12,7 +16,7 @@ class EmployeeDB {
         );
     }
 
-    viewEmployes(){
+    viewEmployees(){
         console.log("viewEmployes Function");
     }
 
@@ -33,7 +37,10 @@ class EmployeeDB {
     }
 
     viewAllDepartments() {
-        console.log("viewAllDepartments Function");
+        db.promise().query('SELECT * FROM department')
+            .then( ([rows,fields]) => console.table(rows))
+            .catch(err => { console.log(err) })
+            .then( () => db.end());
     }
 
     addDepartment() {
