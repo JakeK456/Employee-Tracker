@@ -14,6 +14,10 @@ JOIN role ON role.department_id = department.id
 JOIN employee ON employee.role_id = role.id
 LEFT JOIN employee e ON e.id = employee.manager_id;
 
+-- Get Employees
+SELECT employee.id AS value, CONCAT(employee.first_name, ' ', employee.last_name) AS name
+FROM employee;
+
 -- Get Managers
 SELECT e.id, CONCAT(e.first_name, ' ', e.last_name) AS manager 
 FROM employee
