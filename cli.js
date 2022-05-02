@@ -12,8 +12,6 @@ const db = mysql.createConnection(
     }
 );
 
-//getDepartments().then( ([rows, fields])  => console.log(Array.from(rows, obj => obj.name)));
-
 const promptMain = () => {
     inquirer.prompt([
     {
@@ -31,7 +29,7 @@ const promptMain = () => {
             },
             {
                 name: 'Update Employee Role',
-                value: updateEmployeeRole
+                value: promptUpdateEmployeeRole
             },
             {
                 name: 'View All Roles',
@@ -55,19 +53,23 @@ const promptMain = () => {
             }
         ]
     }
-])
-.then((response) => {
-    response.userChoice();
-});
+    ])
+    .then((response) => {
+        response.userChoice();
+    })
+    .catch(err => { console.log(err) });
 }
 
 const viewAllEmployees = () => {
     db.promise().query(
-        `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(e.first_name, ' ', e.last_name) AS manager
+        `SELECT employee.id, employee.first_name, employee.last_name, 
+            role.title, department.name AS department, role.salary, 
+            CONCAT(e.first_name, ' ', e.last_name) AS manager
         FROM department
         JOIN role ON role.department_id = department.id
         JOIN employee ON employee.role_id = role.id
-        LEFT JOIN employee e ON e.id = employee.manager_id`)
+        LEFT JOIN employee e ON e.id = employee.manager_id
+        ORDER BY employee.id ASC`)
     .then( ([rows,fields]) => {
         console.table(rows);
         promptMain();
@@ -152,9 +154,57 @@ const promptAddEmployee = () => {
     .catch(err => { console.log(err) });
 };
 
-    function updateEmployeeRole() {
-        console.log("updateEmployeeRole Function");
-    }
+const updateEmployeeRole = (employeeId, roleId) => {
+    db.promise().query(
+        `UPDATE employee
+        SET role_id = ${roleId}
+        WHERE id = ${employeeId}`)
+    .then( () => {
+        console.log(`Updated employee\'s role`);
+        promptMain();
+    })
+    .catch(err => { console.log(err) })
+}
+
+const promptUpdateEmployeeRole = () => {
+    let employeeId = null;
+    let roleId = null;
+
+    db.promise().query(
+        `SELECT employee.id AS value, CONCAT(employee.first_name, ' ', employee.last_name) AS name
+        FROM employee`)
+    .then(  ([rows,fields]) => {
+        return inquirer.prompt([
+            {
+                type: 'list',
+                message: 'Which employee\'s role do you want to update?',
+                name: 'employeeId',
+                choices: rows
+            }
+        ]);
+    })
+    .then( (response) => {
+        employeeId = response.employeeId;
+        return db.promise().query(
+            `SELECT role.id AS value, role.title AS name
+            FROM role`);
+    })
+    .then( ([rows,fields]) => {
+        return inquirer.prompt([
+            {
+                type: 'list',
+                message: 'Which role do you want to assign the selected employee?',
+                name: 'roleId',
+                choices: rows
+            }
+        ]);
+    })
+    .then( (response) => {
+        roleId = response.roleId;
+        updateEmployeeRole(employeeId, roleId);
+    })
+    .catch(err => { console.log(err) })
+}
  
 const viewAllRoles = () => {
     db.promise().query(
@@ -180,7 +230,6 @@ const addRole = (name, salary, department) => {
 }
 
 const promptAddRole = () => {
-
     db.promise().query(`SELECT id AS value, name FROM department`)
     .then( ([rows,fields]) => {
         return inquirer.prompt([
