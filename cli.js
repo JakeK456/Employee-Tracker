@@ -1,6 +1,7 @@
 // Import mysql2, inquirer, and console.table
 const inquirer = require('inquirer');
 const mysql = require('mysql2');
+const figlet = require("figlet");
 const consoleTable = require('console.table');
 
 const db = mysql.createConnection(
@@ -292,4 +293,12 @@ const quit = () => {
     db.end();
 }
 
-promptMain();
+figlet('Employee Tracker', function(err, data) {
+    if (err) {
+        console.log('Something went wrong with figlet...');
+        console.dir(err);
+        return;
+    }
+    console.log(data)
+    promptMain();
+});
