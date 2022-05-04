@@ -10,9 +10,7 @@ Demonstration Video: https://drive.google.com/file/d/1dzCQEToU-fR03ECvXScV10ZIHx
 - [Installation](#installation)
 - [Usage](#usage)
 - [License](#license)
-- [Contributing](#contributing)
-- [Tests](#tests)
-- [Questions](#questions)
+- [Credits](#credits)
 
 ## Installation
 
